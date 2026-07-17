@@ -51,12 +51,13 @@ public class FruitCard {
 
     public void bite() {
         if(skipped) return;
+        // If bite isn't used after Apple's Bruise, use default bite energy
         if (moveEnergy != 17) {
             moveEnergy = BITE_ENERGY;
         }
         checkEnoughEnergy();
         if (!user.isEnoughEnergy()) return;
-
+        // Ensures no usage of bite energy and other move energy since multiple moves use bite to deal damage
         if (moveEnergy == BITE_ENERGY) {
             useEnergy();
         }
@@ -64,7 +65,9 @@ public class FruitCard {
         enemy.subtractDisgust(disgust);
         enemy.subtractFullness(fullness);
         System.out.printf("%s gave the %s to %s.%n", user.getName(), name, enemy.getName());
+        // Removes enemy's one move defense card
         enemy.setUsingDefense(false);
+        // Removes all stacks from fruits
         stacking = false;
         enemy.setDisgustTaken(disgust);
         enemy.setFullnessTaken(fullness);
@@ -86,6 +89,7 @@ public class FruitCard {
     public void executeMove(int index) {}
     public void executeDefenseMove(int choice) {}
     public void applyPassiveEffects() {}
+    public int getDefensePercent() { return 0; }
 
     public void checkEnoughEnergy() {
         if (moveEnergy > user.getEnergy()) {

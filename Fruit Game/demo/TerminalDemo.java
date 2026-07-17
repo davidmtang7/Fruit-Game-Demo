@@ -11,6 +11,7 @@ import java.util.Scanner;
 public class TerminalDemo {
 
     public void initGame() {
+        // Object creation
         AppleFruit enemyApple = new AppleFruit();
         AppleFruit playerApple = new AppleFruit();
         BananaFruit playerBanana = new BananaFruit();
@@ -35,12 +36,15 @@ public class TerminalDemo {
             System.out.println("Game Start.");
             System.out.println("Your opponent is: Apple Man");
 
+            // Menu Choice Loop
+
             while (player.getCurrentFruit() == null) {
                 System.out.println("Select Starter Fruit");
                 for (int i = 0; i < player.getFruits().size(); i++) {
                     System.out.printf("%d. %s%n", i + 1, player.getFruits().get(i).getName());
                 }
                 int choice;
+                // Check for available choice
                 try {
                     choice = scnr.nextInt() - 1;
                     scnr.nextLine();
@@ -49,6 +53,7 @@ public class TerminalDemo {
                     scnr.nextLine();
                     continue;
                 }
+                // Initiate fruit choice, if player didn't pick Watermelon give small bite card
                 try {
                     player.setCurrentFruit(player.getFruits().get(choice));
                     System.out.println("You've chosen " + player.getCurrentFruit().getName());
@@ -59,9 +64,10 @@ public class TerminalDemo {
                     System.out.println("Invalid choice! Try again.");
                 }
             }
-
+            // Battle Loop
             while (player.isAlive() && appleMan.isAlive()) {
                 System.out.println("Select your move!");
+                // Prints menu to choose from
                 player.printFruitCards();
                 player.printDefenseCards();
                 System.out.println();
@@ -70,6 +76,7 @@ public class TerminalDemo {
                 boolean choosing = true;
                 while (choosing) {
                     try {
+                        // Check for available choice
                         currentChoice = scnr.nextInt();
                         scnr.nextLine();
                     } catch (Exception e) {
@@ -83,7 +90,7 @@ public class TerminalDemo {
                         choosing = false;
                     }
                 }
-
+                // Execute moves, defense after since it's reduced variables are dependant on incoming damage
                 player.getCurrentFruit().executeMove(currentChoice);
                 if (!player.isEnoughEnergy()) continue;
                 appleMan.chooseRandomMoveApple();
@@ -91,16 +98,16 @@ public class TerminalDemo {
                     player.getCurrentFruit().applyPassiveEffects();
                 }
                 player.executeDefense(currentChoice);
-
+                // Damage done print
                 System.out.printf("Apple Man: %d disgust %d fullness %d energy%n",
                     appleMan.getDisgust(), appleMan.getFullness(), appleMan.getEnergy());
                 System.out.printf("%s: %d disgust %d fullness %d energy%n",
                     player.getName(), player.getDisgust(), player.getFullness(), player.getEnergy());
-
+                // Reset Fruit Damages / Check for game end
                 player.endRound();
                 appleMan.endRound();
             }
-
+            // Print game end messages
             if (player.isAlive()) {
                 System.out.println("You win!");
             } else {

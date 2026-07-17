@@ -27,6 +27,7 @@ public class BattlePanel extends JPanel {
 
     // Damage indicators
     private DmgIndicator enemyDmgLabel, playerDmgLabel;
+    private JLabel playerDefLabel;
 
     // Bottom panel
     private CardLayout bottomCards;
@@ -95,8 +96,15 @@ public class BattlePanel extends JPanel {
         northPanel.add(enemyImgCol);
 
         playerDmgLabel = new DmgIndicator();
+
+        playerDefLabel = new JLabel("", SwingConstants.CENTER);
+        playerDefLabel.setFont(GameFont.get(10f));
+        playerDefLabel.setForeground(new Color(100, 255, 255));
+        playerDefLabel.setVisible(false);
+
         JPanel playerImgCol = new JPanel(new BorderLayout());
         playerImgCol.setOpaque(false);
+        playerImgCol.add(playerDefLabel, BorderLayout.NORTH);
         playerImgCol.add(loadImage("assets/player.png", 200, 200), BorderLayout.CENTER);
         playerImgCol.add(playerDmgLabel, BorderLayout.SOUTH);
 
@@ -247,6 +255,17 @@ public class BattlePanel extends JPanel {
     private void hideDamageIndicators() {
         enemyDmgLabel.setVisible(false);
         playerDmgLabel.setVisible(false);
+        updateDefLabel();
+    }
+
+    private void updateDefLabel() {
+        int pct = player.getDefensePercent();
+        if (pct > 0) {
+            playerDefLabel.setText("-" + pct + "% dmg");
+            playerDefLabel.setVisible(true);
+        } else {
+            playerDefLabel.setVisible(false);
+        }
     }
 
     // ── Bottom Panel ────────────────────────────────────────────────────────
@@ -508,12 +527,22 @@ public class BattlePanel extends JPanel {
         int pDgst = Math.max(0, player.getDisgustTaken() - player.getReducedDisgust());
         int pFull = Math.max(0, player.getFullnessTaken() - player.getReducedFullness());
 
+        int totalTaken   = player.getDisgustTaken() + player.getFullnessTaken();
+        int totalReduced = player.getReducedDisgust() + player.getReducedFullness();
+        int roundDefPct  = (totalTaken > 0 && totalReduced > 0)
+                           ? (int) Math.round(totalReduced * 100.0 / totalTaken) : 0;
+
         boolean wasVulnerable = appleMan.getVulnerable();
 
         player.endRound();
         appleMan.endRound();
-        updateStats();
+        updateStats();  // also calls updateDefLabel() for persistent ThickenRind %
         showDamageIndicators(eDgst, eFull, pDgst, pFull);
+        // if this round had a higher one-turn reduction (e.g. SmallBite), show that instead
+        if (roundDefPct > player.getDefensePercent()) {
+            playerDefLabel.setText("-" + roundDefPct + "% dmg");
+            playerDefLabel.setVisible(true);
+        }
 
         if (wasVulnerable && !appleMan.getVulnerable()) {
             msgQueue.add(new String[]{player.getName() + "'s Banana unripened!", " "});
@@ -568,6 +597,8 @@ public class BattlePanel extends JPanel {
         aDisgustLbl.setText("Disgust: " + ad);  aDisgustBar.setValue(Math.min(ad, 100));
         aFullnessLbl.setText("Fullness: " + af); aFullnessBar.setValue(Math.min(af, 100));
         aEnergyLbl.setText("Energy:   " + ae);   aEnergyBar.setValue(Math.min(ae, 100));
+
+        updateDefLabel();
     }
 
     private void showGameOverUI() {

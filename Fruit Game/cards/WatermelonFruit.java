@@ -7,7 +7,9 @@ public class WatermelonFruit extends FruitCard {
     private final Random rand = new Random();
     private static final int HOLLOW_OUT_ENERGY = 80;
     private static final int BITE_ENERGY = 25;
+    // Needs to initiate defense card because apart of Watermelon's moveset
     private final ThickenRind thickenRind = new ThickenRind();
+    
 
     public WatermelonFruit() {
         disgust = 5;
@@ -36,7 +38,8 @@ public class WatermelonFruit extends FruitCard {
         fullness += 55;
         disgust += 40;
         bite();
-        System.out.printf("%s had to help%n %s finish!%n", user.getName(), enemy.getName());
+        System.out.printf("%s had to finish the rest of the watermelon.", user.getName());
+        // Changes how much damage the user takes, depending on hp. The more hp the more damaga taken.
         int mult = user.getFullness() > 40 || user.getDisgust() > 40 ? 2 : 1;
         if(user.getFullness() > 80 && user.getDisgust() > 80){ mult = 3; }
         user.subtractFullness(20 * mult);
@@ -50,17 +53,27 @@ public class WatermelonFruit extends FruitCard {
         checkEnoughEnergy();
         if (!user.isEnoughEnergy()) return;
         AudioManager.playChomp();
+        // Ensures no double energy usage
         if (moveEnergy != HOLLOW_OUT_ENERGY) { moveEnergy = BITE_ENERGY; }
+        // Use hollow out biting if hollow out was used
         if (moveEnergy == HOLLOW_OUT_ENERGY) {
             enemy.subtractDisgust(disgust);
             enemy.subtractFullness(fullness);
             enemy.setDisgustTaken(disgust);
             enemy.setFullnessTaken(fullness);
         } else if (moveEnergy == BITE_ENERGY) {
+            // Uses watermelon small or big slice mechanic 
             useEnergy();
             int chance = rand.nextInt(100);
             boolean bigSlice = chance >= 65;
-            int added = bigSlice ? rand.nextInt(8, 11) : rand.nextInt(4);
+
+            // Guarantees big slice when low rind resistance
+
+            if (thickenRind.getRindResist() < 7){
+                bigSlice = true;
+            }
+            
+            int added = bigSlice ? rand.nextInt(13, 20) : rand.nextInt(4);
             System.out.printf("%s got a %s slice!%n", enemy.getName(), bigSlice ? "big" : "small");
             enemy.subtractDisgust(disgust + added);
             enemy.subtractFullness(fullness + added);
@@ -80,6 +93,9 @@ public class WatermelonFruit extends FruitCard {
     public void applyPassiveEffects() {
         thickenRind.applyResistance();
     }
+
+    @Override
+    public int getDefensePercent() { return thickenRind.getDefensePercent(); }
 
     @Override
     public int[] getMoveDamage(int index) {

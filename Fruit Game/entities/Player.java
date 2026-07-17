@@ -5,6 +5,7 @@ import cards.FruitCard;
 import java.util.ArrayList;
 
 public class Player {
+    // Init Player Variables and Cards
     private String name = "";
     private int disgustMeter = 100;
     private int fullnessMeter = 100;
@@ -23,7 +24,7 @@ public class Player {
     private int fullnessTaken;
     private boolean vulnerable = false;
     private int vulnerableRoundsLeft = 0;
-
+    // Getter Methods
     public String getName() { return name; }
     public int getDisgust() { return disgustMeter; }
     public int getFullness() { return fullnessMeter; }
@@ -42,6 +43,12 @@ public class Player {
     public Player getTarget() { return target; }
     public boolean getVulnerable(){return vulnerable;}
 
+    public int getDefensePercent() {
+        int max = currentFruit != null ? currentFruit.getDefensePercent() : 0;
+        for (DefenseCard card : defense) max = Math.max(max, card.getDefensePercent());
+        return max;
+    }
+    // Setter Methods
     public void setName(String name) { this.name = name; }
     public void setTarget(Player player) { this.target = player; }
     public void setCurrentFruit(FruitCard fruit) { this.currentFruit = fruit; }
@@ -55,7 +62,7 @@ public class Player {
     public void setVulnerable(boolean choice) { this.vulnerable = choice; if (!choice) vulnerableRoundsLeft = 0; }
     public void setVulnerableRounds(int rounds) { vulnerableRoundsLeft = rounds; vulnerable = rounds > 0; }
     
-
+    // Energy/Bar Changing Methods
     public void spendEnergy(int amount) { energy -= amount; }
     public void gainEnergy(int amount) { energy = Math.min(energy + amount, 100); }
 
@@ -63,13 +70,13 @@ public class Player {
     public void subtractFullness(int damage) { fullnessMeter -= damage; }
     public void addToDisgust(int added) { disgustMeter += added; }
     public void addToFullness(int added) { fullnessMeter += added; }
-
+    // Uses defense card
     public void executeDefense(int index) {
         for (DefenseCard card : defense) {
             card.executeMove(index);
         }
     }
-
+    // Card Menu prints
     public void printFruitCards() {
         for (int i = 0; i < currentFruit.getMoveSetLength(); i++) {
             System.out.printf("%d. %s ", i + 1, currentFruit.getMoveSet()[i]);
@@ -81,7 +88,7 @@ public class Player {
             System.out.printf("%d. %s ", currentFruit.getMoveSetLength() + i + 1, defense.get(i).getName());
         }
     }
-
+    // Card Addition
     public void addFruit(FruitCard fruit) {
         fruits.add(fruit);
         fruit.setUser(this);
@@ -93,7 +100,7 @@ public class Player {
         defense.add(created);
         created.setTarget(this);
     }
-
+    // Resets user's fruit variables and enemy effects, checks for alive
     public final void endRound() {
         if (fullnessMeter <= 0 || disgustMeter <= 0) {
             alive = false;

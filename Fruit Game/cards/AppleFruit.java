@@ -5,12 +5,14 @@ import java.util.Random;
 public class AppleFruit extends FruitCard {
     private static final int BRUISE_ENERGY = 17;
     private static final int SIT_IN_DIRT_ENERGY = 25;
-    int randomGiven = 0;
+    private static boolean eaten = false;
+    private static int randomGiven = 0;
 
     private final Random rand = new Random();
+    // Sit in Dirt stack ranges by round
     private final int[] DIRT_DISGUST = {
-        rand.nextInt(14, 17), rand.nextInt(17, 30), rand.nextInt(18, 25),
-        rand.nextInt(30, 40), 42, 53
+        rand.nextInt(14, 17), rand.nextInt(17, 25), rand.nextInt(25, 30),
+        rand.nextInt(29, 34), 42, 53
     };
 
     public AppleFruit() {
@@ -36,23 +38,25 @@ public class AppleFruit extends FruitCard {
         moveEnergy = SIT_IN_DIRT_ENERGY;
         checkEnoughEnergy();
         if (!user.isEnoughEnergy()) return;
-
-        if (roundCounter <= 2) {
+        // 15% chance to fail for first 2 sit in dirts
+        if (roundCounter <= 1) {
             stacking = true;
-            if (rand.nextInt(100) >= 67) {
-                roundCounter = 100;
+            if (rand.nextInt(100) <= 15) {
+                eaten = true;
             }
-        } else if (roundCounter == 3) {
-            if (rand.nextInt(100) >= 45) {
-                roundCounter = 100;
+        // 45% chance to fail for the third
+        } else if (roundCounter == 2) {
+            if (rand.nextInt(100) <= 45) {
+                eaten = true;
             }
-        } else if (roundCounter == 4 || roundCounter == 5) {
-            if (rand.nextInt(100) >= 15) {
-                roundCounter = 100;
+        // 75% chance to fail onwards
+        } else if (roundCounter > 2) {
+            if (rand.nextInt(100) <= 75) {
+                eaten = true;
             }
         }
 
-        if (roundCounter < DIRT_DISGUST.length) {
+        if (eaten) {
             disgust += DIRT_DISGUST[roundCounter];
             System.out.printf("%s stacked %d disgust%n", user.getName(), disgust);
             roundCounter++;
@@ -68,6 +72,7 @@ public class AppleFruit extends FruitCard {
         fullness = 10;
         disgust = 5;
         roundCounter = 0;
+        eaten = false;
     }
 
     @Override

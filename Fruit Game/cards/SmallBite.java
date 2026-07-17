@@ -25,11 +25,15 @@ public class SmallBite extends DefenseCard {
             System.out.printf("%s didn't attack, no damage saved%n", target.getName());
         } else if (target.getCurrentChoice() % 2 != 0) {
             System.out.printf("%s will now take half of%n the damage%n", player.getName());
-            player.setReducedDisgust((player.getDisgustTaken() / 2));
-            player.setReducedFullness((player.getFullnessTaken() / 2));
+            // Takes the damage the player will take and divides by 2, stores it in player for the print. Adds it back to fullness/disgust bar to mimic reduction
+            int reducedDisgust = player.getDisgustTaken() / 2;
+            int reducedFullness = player.getFullnessTaken() / 2;
+            player.setReducedDisgust((reducedDisgust));
+            player.setReducedFullness((reducedFullness));
+            // Ensures that card is only being used this round
             player.setUsingDefense(true);
-            player.addToDisgust(player.getReducedDisgust());
-            player.addToFullness(player.getReducedFullness());
+            player.addToDisgust(reducedDisgust);
+            player.addToFullness(reducedFullness);
         }
         useEnergy();
     }

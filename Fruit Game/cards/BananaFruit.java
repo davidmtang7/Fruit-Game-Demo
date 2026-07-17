@@ -52,11 +52,10 @@ public class BananaFruit extends FruitCard {
 
     
     @Override
+    // Regular bite method but with banana ripen accounted for 
     public void bite() {
         if(skipped) return;
-        if (moveEnergy != 17) {
-            moveEnergy = BITE_ENERGY;
-        }
+        
         checkEnoughEnergy();
         if (!user.isEnoughEnergy()) return;
 
@@ -67,6 +66,8 @@ public class BananaFruit extends FruitCard {
         System.out.printf("%s gave the %s to %s.%n", user.getName(), name, enemy.getName());
         enemy.setUsingDefense(false);
         stacking = false;
+
+
         int mult = enemy.getVulnerable() ? 2 : 1;
 
         enemy.setDisgustTaken(disgust * mult);

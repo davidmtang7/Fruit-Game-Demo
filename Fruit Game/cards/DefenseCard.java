@@ -14,6 +14,7 @@ public class DefenseCard {
     public void use() {}
     public void resetDisgustAndFullness() {}
     public int getEnergyCost() { return 0; }
+    public int getDefensePercent() { return 0; }
 
     public void checkEnoughEnergy() {
         if (moveEnergy > player.getEnergy()) {
